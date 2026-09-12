@@ -14,8 +14,11 @@ from strategies.information_density import (density_weighted_sampling,
 
 # -----------EXPERIMENTAL SETTINGS-----------------
 
-# number of queries for the active learning process
+# total number of instances queried during the active learning process
 N_QUERIES = 100
+
+# number of instances selected in each active learning iteration
+BATCH_SIZES = [5, 10, 25]
 
 # n_splits for cross-validation
 N_SPLITS = 5

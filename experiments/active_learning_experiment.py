@@ -31,6 +31,8 @@ class ActiveLearningExperiment:
     estimator_name: str = None
 
     def __post_init__(self):
+        if self.batch_size <= 0:
+            raise ValueError("batch_size must be greater than zero.")
 
         os.environ["PYHARD_SEED"] = str(self.random_state)
         # Gerador aleatório para reproducibilidade dos resultados
@@ -52,6 +54,7 @@ class ActiveLearningExperiment:
             self.dataset_name,
             f'{self.n_runs}x{self.n_folds}',
             self.estimator_name,
+            f'batch{self.batch_size}',
             self.query_strategy.__name__]) + ".csv"
 
         self.result_file = os.path.join(self.results_dir, result_file_name)

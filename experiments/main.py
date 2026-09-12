@@ -44,7 +44,7 @@ def logger_process():
         logger.handle(message)
 
 
-def run_experiments(args, n_queries,
+def run_experiments(args, query_budget,
                     results_dir,
                     initial_labeled_size=None,
                     random_state=42, n_runs=1, n_folds=5):
@@ -57,15 +57,16 @@ def run_experiments(args, n_queries,
         global queue
         logger.addHandler(logging.handlers.QueueHandler(queue))
 
-    dataset_file, estimator_name, query_strategy = args
+    dataset_file, estimator_name, query_strategy, batch_size = args
 
     estimator = config.CLASSIFIER_DICT[estimator_name]
+    n_queries = query_budget // batch_size
 
     dataset_name, _ = os.path.splitext(dataset_file)
 
     # Muda o nome do processo
     process = current_process()
-    process.name = f"({dataset_name}, {estimator_name}, {query_strategy.__name__})"
+    process.name = f"({dataset_name}, {estimator_name}, batch{batch_size}, {query_strategy.__name__})"
 
     logger.info("Processo iniciado")
 
@@ -75,6 +76,7 @@ def run_experiments(args, n_queries,
                                    n_queries=n_queries,
                                    n_runs=n_runs,
                                    n_folds=n_folds,
+                                   batch_size=batch_size,
                                    results_dir=results_dir,
                                    random_state=random_state,
                                    estimator_name=estimator_name)
@@ -124,13 +126,13 @@ if __name__ == '__main__':
     datasets = sorted([os.path.join(config.CSV_DIR, f)
                        for f in os.listdir(config.CSV_DIR)])
 
-    args = (datasets, config.CLASSIFIER_DICT, config.SAMPLING_METHODS)
+    args = (datasets, config.CLASSIFIER_DICT, config.SAMPLING_METHODS, config.BATCH_SIZES)
 
     with Pool(config.N_WORKERS) as p:
 
         run_experiments_partial = partial(run_experiments,
                                           results_dir=config.RESULTS_DIR,
-                                          n_queries=config.N_QUERIES,
+                                          query_budget=config.N_QUERIES,
                                           n_folds=config.N_SPLITS,
                                           n_runs=config.N_RUNS)
 

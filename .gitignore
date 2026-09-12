@@ -4,3 +4,6 @@ experiments/logs/*.log
 .python-version
 __pycache__
 *.ipynb_checkpoints/
+
+venv_linux/
+results/v2/
